@@ -1,17 +1,3 @@
--- Translation support
-local S = minetest.get_translator("mobs_monster")
-
-local dirt_types = {
-
-	{	nodes = {"ethereal:dry_dirt"},
-		skins = {"mobs_dirt_monster3.png"},
-		drops = {
-			{name = "ethereal:dry_dirt", chance = 1, min = 0, max = 2}
-		}
-	}
-}
-
-
 -- Dirt Monster by PilzAdam
 
 mobs:register_mob("mobs_monster:dirt_monster", {
@@ -59,54 +45,7 @@ mobs:register_mob("mobs_monster:dirt_monster", {
 		punch_end = 63
 	},
 
-	-- check surrounding nodes and spawn a specific monster
-	on_spawn = function(self)
-
-		local pos = self.object:get_pos() ; pos.y = pos.y - 1
-		local tmp
-
-		for n = 1, #dirt_types do
-
-			tmp = dirt_types[n]
-
-			if minetest.find_node_near(pos, 1, tmp.nodes) then
-
-				self.base_texture = tmp.skins
-				self.object:set_properties({textures = tmp.skins})
-
-				if tmp.drops then
-					self.drops = tmp.drops
-				end
-
-				return true
-			end
-		end
-
-		return true -- run only once, false/nil runs every activation
-	end,
-
 	on_die = function(self)
 		szombie_core.on_monster_die()
 	end,
 })
-
-
-if not mobs.custom_spawn_monster then
-
-	mobs:spawn({
-		name = "mobs_monster:dirt_monster",
-		nodes = {"default:dirt_with_grass", "ethereal:gray_dirt", "ethereal:dry_dirt"},
-		min_light = 0,
-		max_light = 7,
-		chance = 6000,
-		active_object_count = 2,
-		min_height = 0,
-		day_toggle = false
-	})
-end
-
-
-mobs:register_egg("mobs_monster:dirt_monster", S("Dirt Monster"), "default_dirt.png", 1)
-
-
-mobs:alias_mob("mobs:dirt_monster", "mobs_monster:dirt_monster") -- compatibility

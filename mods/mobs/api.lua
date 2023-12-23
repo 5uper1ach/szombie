@@ -14,12 +14,10 @@ mobs = {
 	version = "20231028",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
-	node_snow = minetest.registered_aliases["mapgen_snow"]
-			or (use_mc2 and "mcl_core:snow") or "default:snow",
-	node_dirt = minetest.registered_aliases["mapgen_dirt"]
-			or (use_mc2 and "mcl_core:dirt") or "default:dirt"
+	node_snow = "air",
+	node_dirt = "air",
 }
-mobs.fallback_node = mobs.node_dirt
+mobs.fallback_node = "air"
 
 -- localize common functions
 local pi = math.pi

@@ -76,7 +76,10 @@ local hud_blinking = false
 local hud_blinking_t = 0
 
 local SPAWN_RATE = 10
+local SPAWN_COUNT = 15
+
 local dtime_accu = SPAWN_RATE
+local to_be_spawned = 0
 
 minetest.register_globalstep(function(dtime)
     local players = minetest.get_connected_players()
@@ -108,15 +111,14 @@ minetest.register_globalstep(function(dtime)
     end
 
     dtime_accu = dtime_accu + dtime
-    if dtime_accu < SPAWN_RATE then
-        return
+    if dtime_accu >= SPAWN_RATE then
+        to_be_spawned = SPAWN_COUNT
+        dtime_accu = 0
     end
-    dtime_accu = 0
 
-    for _, player in ipairs(players) do
-        for i = 1, 15 do
-            spawn_monster(player)
-        end
+    if to_be_spawned > 0 then
+        spawn_monster(minetest.get_connected_players()[1])
+        to_be_spawned = to_be_spawned - 1
     end
 end)
 
