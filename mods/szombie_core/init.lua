@@ -1,3 +1,11 @@
+if not minetest.is_singleplayer() then
+    error("This game doesn't support multiplayer.")
+end
+if not minetest.settings:get_bool("enable_damage") or
+        not minetest.settings:get_bool("creative_mode") then
+    error("enable_damage and creative_mode must be set to true")
+end
+
 local hud_id
 
 minetest.register_on_newplayer(function(player)
