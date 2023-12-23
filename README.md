@@ -2,9 +2,11 @@
 
 Fight zombies until you die.
 
+Made by 5uper1ach and grorp.
+
 ## Licenses
 
-my own code: MIT
+our own code: MIT
 
 skybox_*.png: https://opengameart.org/content/space-nebulas-skybox CC BY-SA 3.0
 
