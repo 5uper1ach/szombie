@@ -31,8 +31,8 @@ shooter.config = {
 	explosion_texture = "shooter_hit.png",
 	node_drops = false,
 	allow_nodes = true,
-	allow_entities = false,
-	allow_players = true,
+	allow_entities = true,
+	allow_players = false,
 	rounds_update_time = 0.4,
 	camera_height = 1.5,
 }

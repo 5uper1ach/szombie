@@ -36,6 +36,7 @@ mobs:register_mob("mobs_monster:dirt_monster", {
 		random = "mobs_dirtmonster",
 		damage = "aargh",
 		death = "aargh",
+		distance = 32,
 	},
 	view_range = 256,
 	walk_velocity = 1,

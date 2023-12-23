@@ -23,12 +23,6 @@ local worldpath = minetest.get_worldpath()
 
 dofile(modpath.."/api.lua")
 
-if minetest.is_singleplayer() then
-	shooter.config.enable_blasting = true
-	shooter.config.allow_entities = true
-	shooter.config.allow_players = false
-end
-
 -- Legacy Config Support
 
 local input = io.open(modpath.."/shooter.conf", "r")
