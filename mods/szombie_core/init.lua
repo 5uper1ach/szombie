@@ -7,7 +7,6 @@ end)
 
 minetest.register_on_joinplayer(function(player, last_login)
     player:set_sky({ type = "skybox", textures = { "skybox_down.png", "skybox_up.png", "skybox_left.png", "skybox_right.png", "skybox_back.png", "skybox_front.png"}})
-    -- Gregor ist cool
     -- minetest.sound_play("aargh", { to_player = player:get_player_name(), loop = true })
     hud_id = player:hud_add({
         hud_elem_type = "text",
