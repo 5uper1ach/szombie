@@ -119,17 +119,7 @@ shooter.register_weapon = function(name, def)
 end
 
 shooter.get_configuration = function(conf)
-	for k, v in pairs(conf) do
-		local setting = minetest.settings:get("shooter_"..k)
-		if type(v) == "number" then
-			setting = tonumber(setting)
-		elseif type(v) == "boolean" then
-			setting = minetest.settings:get_bool("shooter_"..k)
-		end
-		if setting ~= nil then
-			conf[k] = setting
-		end
-	end
+	-- REMOVED to prevent users from breaking the game via Simple Shooter settings.
 	return conf
 end
 
@@ -249,9 +239,7 @@ local function process_hit(pointed_thing, spec, dir)
 				shooter.punch_object(object, spec.tool_caps, dir) then
 			local pos = pointed_thing.intersection_point or object:get_pos()
 			local groups = object:get_armor_groups() or {}
-			if groups.fleshy then
-				shooter.spawn_particles(pos, spec.particles)
-			end
+			-- REMOVED particles because we already have blood splash particles from Mobs Redo.
 		end
 	end
 end
