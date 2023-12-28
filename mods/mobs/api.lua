@@ -100,10 +100,11 @@ local active_mobs = 0
 local node_timer_interval = tonumber(settings:get("mob_node_timer_interval") or 0.25)
 local main_timer_interval = tonumber(settings:get("mob_main_timer_interval") or 1.0)
 
+-- DISABLED because it wastes space in flamegraphs.
 -- pathfinding settings
-local pathfinding_enable = settings:get_bool("mob_pathfinding_enable") or true
+local pathfinding_enable = false
 -- Use pathfinder mod if available
-local pathfinder_enable = settings:get_bool("mob_pathfinder_enable") or true
+local pathfinder_enable = false
 -- how long before stuck mobs start searching
 local pathfinding_stuck_timeout = tonumber(
 		settings:get("mob_pathfinding_stuck_timeout")) or 3.0
