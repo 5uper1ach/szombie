@@ -24,6 +24,8 @@ minetest.register_on_joinplayer(function(player, last_login)
             "skybox_front.png",
             "skybox_back.png",
         },
+        -- make fog blend with floor
+        base_color = "#2f2c27",
     })
     player:set_sun({
         -- looks ugly on custom skybox
