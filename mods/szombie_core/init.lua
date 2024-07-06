@@ -25,6 +25,10 @@ minetest.register_on_joinplayer(function(player, last_login)
             "skybox_back.png",
         },
     })
+    player:set_sun({
+        -- looks ugly on custom skybox
+        sunrise_visible = false,
+    })
     hud_id = player:hud_add({
         hud_elem_type = "text",
         position = {x = 0, y = 1},
