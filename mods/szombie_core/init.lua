@@ -14,8 +14,17 @@ minetest.register_on_newplayer(function(player)
 end)
 
 minetest.register_on_joinplayer(function(player, last_login)
-    player:set_sky({ type = "skybox", textures = { "skybox_down.png", "skybox_up.png", "skybox_left.png", "skybox_right.png", "skybox_back.png", "skybox_front.png"}})
-    -- minetest.sound_play("aargh", { to_player = player:get_player_name(), loop = true })
+    player:set_sky({
+        type = "skybox",
+        textures = {
+            "skybox_up.png^[transformR90",
+            "skybox_down.png^[transformR270",
+            "skybox_right.png",
+            "skybox_left.png",
+            "skybox_front.png",
+            "skybox_back.png",
+        },
+    })
     hud_id = player:hud_add({
         hud_elem_type = "text",
         position = {x = 0, y = 1},
