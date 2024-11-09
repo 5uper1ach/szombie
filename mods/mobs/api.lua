@@ -2961,7 +2961,7 @@ function mob_class:on_punch(hitter, tflp, tool_capabilities, dir, damage)
 				blood = self.blood_texture[random(#self.blood_texture)]
 			end
 
-			effect(pos, amount, blood, 1, 2, 1.75, nil, nil, true)
+			effect(pos, amount, blood, 1, 2, 1.75, nil, 300000, true)
 		end
 
 		-- add healthy afterglow when hit (can cause lag with larger textures)
