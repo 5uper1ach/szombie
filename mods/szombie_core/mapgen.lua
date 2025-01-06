@@ -12,7 +12,7 @@ local vm_data
 local GROUND_LEVEL = -3
 
 local ROADWIDTH = 3
-local BLOCKSIZE = 64
+local BLOCKSIZE = 48
 local ROAD_1 = ROADWIDTH - 1
 local ROAD_2 = BLOCKSIZE - ROADWIDTH
 
