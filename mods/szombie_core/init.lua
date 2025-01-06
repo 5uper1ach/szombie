@@ -97,7 +97,7 @@ minetest.register_on_generated(function(pos_min, pos_max)
     local vm_area = VoxelArea:new{MinEdge = vm_pos_min, MaxEdge = vm_pos_max}
     vm_data = vm:get_data(vm_data)
 
-    local stone = minetest.get_content_id("szombie_core:stone")
+    local stone = minetest.get_content_id("default:sand")
 
     for x = pos_min.x, pos_max.x do
         for y = pos_min.y, pos_max.y do
