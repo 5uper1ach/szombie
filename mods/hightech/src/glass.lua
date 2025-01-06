@@ -48,7 +48,7 @@ minetest.register_node(
 	{
 		description = S("Hightech Glass Ore"),
 		tiles = {"default_stone.png^hightech_glass_ore.png"},
-		paramtype = light,
+		paramtype = "light",
 		light_source = hightech.internal.max_light / 4 * 3,
 		groups = {cracky = 3},
 		sounds = default.node_sound_stone_defaults(),
