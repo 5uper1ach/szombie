@@ -42,7 +42,7 @@ minetest.override_item("xpanes:hightech_grid", {
 	end,
 	damage_per_second = 2,
 	paramtype = "light",
-	light_source = minetest.LIGHT_MAX,
+	light_source = hightech.internal.max_light,
 	connects_to = {
 		"xpanes:hightech_grid",
 		"xpanes:hightech_grid_flat",
@@ -63,7 +63,7 @@ minetest.override_item("xpanes:hightech_grid_flat", {
 	end,
 	damage_per_second = 2,
 	paramtype = "light",
-	light_source = minetest.LIGHT_MAX,
+	light_source = hightech.internal.max_light,
 })
 
 xpanes.register_pane("hightech_grid_open", {
@@ -85,7 +85,7 @@ minetest.override_item("xpanes:hightech_grid_open", {
 		return true
 	end,
 	paramtype = "light",
-	light_source = minetest.LIGHT_MAX,
+	light_source = hightech.internal.max_light,
 	connects_to = {
 		"xpanes:hightech_grid",
 		"xpanes:hightech_grid_flat",
@@ -107,7 +107,7 @@ minetest.override_item("xpanes:hightech_grid_open_flat", {
 		return true
 	end,
 	paramtype = "light",
-	light_source = minetest.LIGHT_MAX,
+	light_source = hightech.internal.max_light,
 	drop = "xpanes:hightech_grid_flat",
 })
 

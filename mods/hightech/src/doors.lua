@@ -8,7 +8,7 @@ doors.register(
 		inventory_image = "hightech_door_inv.png",
 		use_texture_alpha = "blend",
 		paramtype = "light",
-		light_source = minetest.LIGHT_MAX,
+		light_source = hightech.internal.max_light,
 		groups = {cracky = 3},
 		sounds = default.node_sound_stone_defaults(),
 	}

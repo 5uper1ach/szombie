@@ -81,7 +81,7 @@ for xp = 0, 1 do
 							"hightech_dark.png",
 						},
 						paramtype = "light",
-						light_source = minetest.LIGHT_MAX,
+						light_source = hightech.internal.max_light,
 						groups = {
 							cracky = 3,
 							not_in_creative_inventory = autoconnect_stripe_top_nodename == autoconnect_stripe_top_inv_nodename and 0 or 1,
@@ -108,7 +108,7 @@ for xp = 0, 1 do
 							"hightech_dark.png",
 						},
 						paramtype = "light",
-						light_source = minetest.LIGHT_MAX,
+						light_source = hightech.internal.max_light,
 						groups = {
 							cracky = 3,
 							not_in_creative_inventory = autoconnect_stripe_bottom_nodename == autoconnect_stripe_bottom_inv_nodename and 0 or 1,

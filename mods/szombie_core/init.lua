@@ -47,7 +47,7 @@ minetest.register_on_joinplayer(function(plaer, last_login)
             tint = "indianred",
         },   
         bloom = {
-            intensity = 0.2,
+            intensity = 0.05,
             strength_factor = 2,
             radius = 2.2,
         },

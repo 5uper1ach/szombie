@@ -8,7 +8,7 @@ minetest.register_node(
 		drawtype = "glasslike",
 		use_texture_alpha = "blend",
 		paramtype = "light",
-		light_source = minetest.LIGHT_MAX,
+		light_source = hightech.internal.max_light,
 		groups = {cracky = 3, oddly_breakable_by_hand = 3},
 		sounds = default.node_sound_glass_defaults(),
 	}
@@ -28,19 +28,19 @@ stairs.register_stair_and_slab(
 )
 minetest.override_item("stairs:stair_hightech_glass", {
 	paramtype = "light",
-	light_source = minetest.LIGHT_MAX,
+	light_source = hightech.internal.max_light,
 })
 minetest.override_item("stairs:stair_inner_hightech_glass", {
 	paramtype = "light",
-	light_source = minetest.LIGHT_MAX,
+	light_source = hightech.internal.max_light,
 })
 minetest.override_item("stairs:stair_outer_hightech_glass", {
 	paramtype = "light",
-	light_source = minetest.LIGHT_MAX,
+	light_source = hightech.internal.max_light,
 })
 minetest.override_item("stairs:slab_hightech_glass", {
 	paramtype = "light",
-	light_source = minetest.LIGHT_MAX,
+	light_source = hightech.internal.max_light,
 })
 
 minetest.register_node(
@@ -49,7 +49,7 @@ minetest.register_node(
 		description = S("Hightech Glass Ore"),
 		tiles = {"default_stone.png^hightech_glass_ore.png"},
 		paramtype = light,
-		light_source = minetest.LIGHT_MAX / 4 * 3,
+		light_source = hightech.internal.max_light / 4 * 3,
 		groups = {cracky = 3},
 		sounds = default.node_sound_stone_defaults(),
 		drop = "hightech:glass_dust 2",

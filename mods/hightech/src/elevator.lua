@@ -16,7 +16,7 @@ local function create_particle_spawner(pos)
 
 	local id = minetest.add_particlespawner({
 		texture = "hightech_glass.png",
-		glow = minetest.LIGHT_MAX,
+		glow = hightech.internal.max_light,
 		amount = 10,
 		time = 0,
 		minpos = vector.add(pos, {x = -0.4, y = -0.4, z = -0.4}),

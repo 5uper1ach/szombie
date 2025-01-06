@@ -77,7 +77,7 @@ function Hoverboard:on_step(dtime)
 	if accelerate and not self.particle_spawner_id then
 		self.particle_spawner_id = minetest.add_particlespawner({
 			texture = "hightech_glass.png",
-			glow = minetest.LIGHT_MAX,
+			glow = hightech.internal.max_light,
 			amount = 100,
 			time = 0,
 			attached = self.object,
