@@ -2,8 +2,8 @@ minetest.register_on_joinplayer(function(plaer, last_login)
     plaer:set_lighting({
         saturation = 1,
         shadows = {
-            intensity = 0.6,
-            tint = "indianred",
+            intensity = 0.33,
+            -- tint = "indianred",
         },   
         bloom = {
             intensity = 0.05,
