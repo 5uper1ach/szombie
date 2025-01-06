@@ -97,7 +97,8 @@ minetest.register_on_generated(function(pos_min, pos_max)
     local vm_area = VoxelArea:new{MinEdge = vm_pos_min, MaxEdge = vm_pos_max}
     vm_data = vm:get_data(vm_data)
 
-    local stone = minetest.get_content_id("default:sand")
+    local sand = minetest.get_content_id("default:sand")
+    local dark = minetest.get_content_id("hightech:dark")
 
     for x = pos_min.x, pos_max.x do
         for y = pos_min.y, pos_max.y do
@@ -105,7 +106,12 @@ minetest.register_on_generated(function(pos_min, pos_max)
                 local index = vm_area:index(x, y, z)
 
                 if y <= -3 then
-                    vm_data[index] = stone
+                    local blockpos = vector.divide(vector.new(x, 0, z), 64):floor()
+                    if (blockpos.x + blockpos.z) % 2 == 0 then
+                        vm_data[index] = sand
+                    else
+                        vm_data[index] = dark
+                    end
                 end
             end
         end
