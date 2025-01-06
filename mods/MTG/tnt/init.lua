@@ -7,10 +7,7 @@ local S = minetest.get_translator("tnt")
 
 
 -- Default to enabled when in singleplayer
-local enable_tnt = minetest.settings:get_bool("enable_tnt")
-if enable_tnt == nil then
-	enable_tnt = minetest.is_singleplayer()
-end
+local enable_tnt = true
 
 -- loss probabilities array (one in X will be lost)
 local loss_prob = {}
