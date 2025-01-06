@@ -40,6 +40,7 @@ end
 local function update_autoconnect_stripe_node(base_nodename, pos)
 	minetest.set_node(pos, {name = conn_dirs_table_to_autoconnect_stripe_nodename(base_nodename, get_autoconnect_stripe_node_conn_dirs(base_nodename, pos))})
 end
+hightech.internal.update_autoconnect_stripe_node = update_autoconnect_stripe_node
 
 local function update_surrounding_autoconnect_stripe_nodes(base_nodename, pos)
 	if is_autoconnect_stripe_node(base_nodename, { x = pos.x+1, y = pos.y, z = pos.z }) then
@@ -55,6 +56,7 @@ local function update_surrounding_autoconnect_stripe_nodes(base_nodename, pos)
 		update_autoconnect_stripe_node(base_nodename, { x = pos.x, y = pos.y, z = pos.z-1 })
 	end
 end
+hightech.internal.update_surrounding_autoconnect_stripe_nodes = update_surrounding_autoconnect_stripe_nodes
 
 local autoconnect_stripe_top_base_nodename = "hightech:dark_stripe_top_autoconnect"
 local autoconnect_stripe_top_inv_nodename = conn_dirs_table_to_autoconnect_stripe_nodename(autoconnect_stripe_top_base_nodename, {true, true, false, false})
