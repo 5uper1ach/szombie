@@ -1,0 +1,16 @@
+name: test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: buckaroobanzay/mtt@main
+      with:
+        modname: mapblock_lib
+        mapgen: v7
+        enable_coverage: true
+        git_dependencies: |
+          https://github.com/BuckarooBanzay/mtzip
+          https://github.com/BuckarooBanzay/placeholder
+    - uses: coverallsapp/github-action@v1
