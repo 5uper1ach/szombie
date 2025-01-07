@@ -1,3 +1,25 @@
+local schema_names = {"citychunk1", "citychunk2"}
+local catalogs = {}
+for i, name in ipairs(schema_names) do
+    catalogs[i] = assert(mapblock_lib.get_catalog(core.get_modpath("szombie_core") .. "/schematics/" .. name .. ".zip"))
+end
+
+local function place_chunk(mapblockpos)
+    local index = math.random(#schema_names)
+
+    catalogs[index]:deserialize_all(mapblockpos, {
+        callback = function(total_count, micros)
+            print("finished generating " .. schema_names[index])
+            local marker_pos = vector.new(mapblockpos.x * 16, -3, mapblockpos.z * 16)
+            core.set_node(marker_pos, {name = "default:mese"})
+            core.set_node(marker_pos:offset(1, 0, 0), {name = "default:mese"})
+            core.set_node(marker_pos:offset(0, 0, 1), {name = "default:mese"})
+            print(marker_pos)
+        end,
+        progress_callback = function(p)
+        end,
+    })
+end
 
 minetest.register_node("szombie_core:checkerboard", {
     tiles = { "trak2_tile1b.tga" },
@@ -53,6 +75,11 @@ minetest.register_on_generated(function(pos_min, pos_max)
                         table.insert(stripe_poss, vector.new(x, y, z))
                     else
                         vm_data[index] = sand
+                    end
+
+                    if pos_in_block == vector.new(0, 0, 0) then
+                        local mapblockpos = vector.new(math.floor(x / core.MAP_BLOCKSIZE), math.floor(y / core.MAP_BLOCKSIZE), math.floor(z / core.MAP_BLOCKSIZE))
+                        place_chunk(mapblockpos)
                     end
                 elseif y < GROUND_LEVEL then
                     vm_data[index] = sand
