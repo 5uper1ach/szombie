@@ -14,7 +14,7 @@ minetest.register_alias_force("mapgen_singlenode", "air")
 
 local vm_data
 
-local GROUND_LEVEL = -3
+local GROUND_LEVEL = -18
 local CHUNKSIZE = 48
 
 local chunk_schema_selections = {}
