@@ -1,4 +1,4 @@
-local schema_names = {"citychunk1", "citychunk2"}
+local schema_names = {"citychunk1", "citychunk2", "citychunk_garden"}
 local catalogs = {}
 for i, name in ipairs(schema_names) do
     catalogs[i] = assert(mapblock_lib.get_catalog(core.get_modpath("szombie_core") .. "/schematics/" .. name .. ".zip"))
