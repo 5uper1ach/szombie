@@ -1,7 +1,7 @@
 hightech = {}
 hightech.internal = {}
 
-hightech.internal.max_light = core.LIGHT_MAX / 2
+hightech.internal.max_light = core.LIGHT_MAX
 
 dofile(minetest.get_modpath("hightech") .. "/src/helpers.lua")
 dofile(minetest.get_modpath("hightech") .. "/src/dark.lua")
