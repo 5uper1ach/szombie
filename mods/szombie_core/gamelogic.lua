@@ -26,4 +26,3 @@ core.register_node("szombie_core:spawner", {
     walkable = false,
     pointable = false,
 })
-core.register_alias_force("stairs:stair_inner_glass", "szombie_core:spawner")

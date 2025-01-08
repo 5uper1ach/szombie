@@ -68,6 +68,8 @@ local function get_schema_index(chunkpos)
     return index
 end
 
+local vm_data
+
 core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
     -- local t1 = core.get_us_time()
 
@@ -90,11 +92,53 @@ core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
         local mapblockpos = vector.new(block_x, block_y, block_z)
 
         if catalogs[schema_index]:has_mapblock(mapblockpos_in_chunk) then
-            assert(catalogs[schema_index]:deserialize(mapblockpos_in_chunk, mapblockpos, {mapgen_voxelmanip = vmanip}))
+            assert(catalogs[schema_index]:deserialize(mapblockpos_in_chunk, mapblockpos, {
+                mapgen_voxelmanip = vmanip,
+                transform = {
+                    replace = {
+                        ["stairs:stair_inner_glass"] = "szombie_core:spawner",
+                    },
+                },
+            }))
         end
     end
     end
     end
+
+    local emin, emax = vmanip:get_emerged_area()
+    local vm_area = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
+    -- we batch finding spawners after all mapblocks are written so that we only
+    -- have to call get_data once
+    vm_data = vmanip:get_data(vm_data)
+
+    local spawner = core.get_content_id("szombie_core:spawner")
+    local spawner_poss = {}
+
+    for block_x = blockpos_min.x, blockpos_max.x do
+    for block_y = blockpos_min.y, blockpos_max.y do
+    for block_z = blockpos_min.z, blockpos_max.z do
+        local blockpos = vector.new(block_x, block_y, block_z)
+        local pos_min, pos_max = mapblock_lib.get_mapblock_bounds_from_mapblock(blockpos)
+        local list = {}
+
+        for x = pos_min.x, pos_max.x do
+        for y = pos_min.y, pos_max.y do
+        for z = pos_min.z, pos_max.z do
+            if vm_data[vm_area:index(x, y, z)] == spawner then
+                table.insert(list, vector.new(x, y, z))
+            end
+        end
+        end
+        end
+
+        if #list > 0 then
+            spawner_poss[blockpos:to_string()] = list
+        end
+    end
+    end
+    end
+
+    assert(core.save_gen_notify("szombie_core:spawner_poss", spawner_poss))
 
     -- local t2 = core.get_us_time()
     -- print("delta = " .. ((t2 - t1) / 1000) .. " ms")
