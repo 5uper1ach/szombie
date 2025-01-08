@@ -26,12 +26,17 @@ end
 local GROUND_LEVEL = -18
 local CHUNKSIZE = 48
 
+-- not thread-safe I guess
+
 local function storage_get_selection(chunkpos)
-    return core.ipc_get("szombie_core:chunk_selection:" .. chunkpos:to_string())
+    local selections = core.ipc_get("szombie_core:chunk_selections")
+    return selections[chunkpos:to_string()]
 end
 
 local function storage_set_selection(chunkpos, selection)
-    core.ipc_set("szombie_core:chunk_selection:" .. chunkpos:to_string(), selection)
+    local selections = core.ipc_get("szombie_core:chunk_selections")
+    selections[chunkpos:to_string()] = selection
+    core.ipc_set("szombie_core:chunk_selections", selections)
 end
 
 local function is_valid(chunkpos, selection)
@@ -64,7 +69,7 @@ local function get_schema_index(chunkpos)
 end
 
 core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
-    local t1 = core.get_us_time()
+    -- local t1 = core.get_us_time()
 
     local blockpos_min = mapblock_lib.get_mapblock(pos_min)
     local blockpos_max = mapblock_lib.get_mapblock(pos_max)
@@ -91,7 +96,6 @@ core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
     end
     end
 
-
-    local t2 = core.get_us_time()
-    print("delta = " .. ((t2 - t1) / 1000) .. " ms")
+    -- local t2 = core.get_us_time()
+    -- print("delta = " .. ((t2 - t1) / 1000) .. " ms")
 end)

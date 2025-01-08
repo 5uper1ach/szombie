@@ -1,7 +1,3 @@
-core.register_mapgen_script(core.get_modpath("szombie_core") .. "/mapgen_async.lua")
-
-local storage = core.get_mod_storage()
-
 local GENERATE_VARIANT_SCHEMATICS = false
 
 local schema_names = {"citychunk1", "citychunk2", "citychunk_garden"}
@@ -106,3 +102,20 @@ minetest.register_alias_force("mapgen_singlenode", "air")
 -- with "movement_speed_fast = 60" and "chunksize = 1", I don't hit ignore
 
 core.set_mapgen_setting("chunksize", 1, true)
+
+local storage = core.get_mod_storage()
+local data = core.deserialize(storage:get_string("szombie_core:chunk_selections")) or {}
+core.ipc_set("szombie_core:chunk_selections", data)
+-- print("chunk selections read from mod storage: " .. dump(data))
+
+local function save()
+    local data = core.ipc_get("szombie_core:chunk_selections")
+    storage:set_string("szombie_core:chunk_selections", core.serialize(data))
+    -- print("chunk selections saved to mod storage: " .. dump(data))
+
+    core.after(5, save)
+end
+
+core.after(5, save)
+
+core.register_mapgen_script(core.get_modpath("szombie_core") .. "/mapgen_async.lua")
