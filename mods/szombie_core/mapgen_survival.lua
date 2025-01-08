@@ -22,14 +22,14 @@ do
 end
 -- print("chunk selections read from mod storage: " .. dump(data))
 
-local spawner_poss = core.deserialize(storage:get_string("szombie_core:spawner_poss")) or {}
+szombie_core.spawner_poss = core.deserialize(storage:get_string("szombie_core:spawner_poss")) or {}
 
 local function save()
     local data = core.ipc_get("szombie_core:chunk_selections")
     storage:set_string("szombie_core:chunk_selections", core.serialize(data))
     -- print("chunk selections saved to mod storage: " .. dump(data))
 
-    storage:set_string("szombie_core:spawner_poss", core.serialize(spawner_poss))
+    storage:set_string("szombie_core:spawner_poss", core.serialize(szombie_core.spawner_poss))
 
     core.after(5, save)
 end
@@ -39,12 +39,12 @@ core.after(5, save)
 core.set_gen_notify("custom", nil, {"szombie_core:spawner_poss"})
 
 core.register_on_generated(function(pos_min, pos_max, blockseed)
-    local spawner_poss = core.get_mapgen_object("gennotify").custom["szombie_core:spawner_poss"]
+    local new_poss = core.get_mapgen_object("gennotify").custom["szombie_core:spawner_poss"]
 
-    for blockpos_str, pos_list in pairs(spawner_poss) do
-        spawner_poss[blockpos_str] = pos_list
+    for blockpos_str, pos_list in pairs(new_poss) do
+        szombie_core.spawner_poss[blockpos_str] = pos_list
 
-        -- print(blockpos_str .. " = " .. dump(spawner_poss))
+        -- print(blockpos_str .. " = " .. dump(new_poss))
         -- for _, p in ipairs(pos_list) do
         --     core.set_node(p, {name = "default:mese"})
         -- end
