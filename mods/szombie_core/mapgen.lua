@@ -110,11 +110,18 @@ local function is_valid(chunkpos, selection)
     return true
 end
 
-local function select_schema_index(chunkpos)
+local function get_schema_index(chunkpos)
+    local chunkpos_str = chunkpos:to_string()
+
+    if chunk_schema_selections[chunkpos_str] then
+        return chunk_schema_selections[chunkpos_str]
+    end
+
     local index
     repeat
         index = math.random(#schema_names)
     until is_valid(chunkpos, index)
+    chunk_schema_selections[chunkpos_str] = index
     return index
 end
 
@@ -126,10 +133,7 @@ minetest.register_on_generated(function(pos_min, pos_max)
 
                 if pos_in_mapblock == vector.new(0, 0, 0) then
                     local chunkpos = vector.new(math.floor(x / CHUNKSIZE), 0, math.floor(z / CHUNKSIZE))
-                    if not chunk_schema_selections[chunkpos:to_string()] then
-                        chunk_schema_selections[chunkpos:to_string()] = select_schema_index(chunkpos)
-                    end
-                    local schema_index = chunk_schema_selections[chunkpos:to_string()]
+                    local schema_index = get_schema_index(chunkpos)
 
                     local pos_in_chunk = vector.new(x % CHUNKSIZE, y - GROUND_LEVEL, z % CHUNKSIZE)
                     local mapblockpos_in_chunk = vector.new(math.floor(pos_in_chunk.x / core.MAP_BLOCKSIZE), math.floor(pos_in_chunk.y / core.MAP_BLOCKSIZE), math.floor(pos_in_chunk.z / core.MAP_BLOCKSIZE))
