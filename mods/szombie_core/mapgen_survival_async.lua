@@ -71,6 +71,16 @@ local function get_schema_index(chunkpos)
     return index
 end
 
+local replacements = {
+    ["stairs:stair_inner_glass"] = "szombie_core:spawner",
+}
+for name in pairs(core.registered_nodes) do
+    -- mobs can't open doors for now, so remove them
+    if core.get_item_group(name, "door") ~= 0 then
+        replacements[name] = "air"
+    end
+end
+
 local vm_data
 
 core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
@@ -100,9 +110,7 @@ core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
             assert(catalogs[schema_index]:deserialize(mapblockpos_in_chunk, mapblockpos, {
                 mapgen_voxelmanip = vmanip,
                 transform = {
-                    replace = {
-                        ["stairs:stair_inner_glass"] = "szombie_core:spawner",
-                    },
+                    replace = replacements,
                 },
             }))
             table.insert(check_blockposs, mapblockpos)
