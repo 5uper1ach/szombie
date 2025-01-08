@@ -5,7 +5,7 @@ end
 
 minetest.register_on_newplayer(function(player)
     player:get_inventory():add_item("main", "shooter:machine_gun")
-    player:get_inventory():add_item("main", "shooter:ammo 4")
+    player:get_inventory():add_item("main", "shooter:ammo 9999")
 end)
 
 minetest.register_on_joinplayer(function(plaer, last_login)
@@ -89,6 +89,16 @@ local function is_spawner_hidden(player, spawner_pos)
     return false
 end
 
+local function is_spawner_free(spawner_pos)
+    for _, obj in ipairs(core.get_objects_inside_radius(spawner_pos, 8)) do
+        if obj:get_luaentity() and obj:get_luaentity().name == "mobs_monster:dirt_monster" then
+            print("spawner " .. vector.to_string(spawner_pos) .. " not free, discarding")
+            return false
+        end
+    end
+    return true
+end
+
 local function spawn_monsters(player, max_count)
     local playerpos = player:get_pos()
     local blockpos = mapblock_lib.get_mapblock(playerpos)
@@ -109,8 +119,10 @@ local function spawn_monsters(player, max_count)
 
     for _, spawner_pos in ipairs(avail_spawners) do
         if is_spawner_hidden(player, spawner_pos) and
-                is_spawner_hidden(player, vector.offset(spawner_pos, 0, 1, 0)) then
-            core.add_entity(spawner_pos, "mobs_monster:dirt_monster")
+                is_spawner_hidden(player, vector.offset(spawner_pos, 0, 1, 0)) and
+                is_spawner_free(spawner_pos) then
+            local obj = core.add_entity(spawner_pos, "mobs_monster:dirt_monster")
+            obj:get_luaentity().szombie_victim = player
             num_spawned = num_spawned + 1
         end
 
@@ -122,15 +134,30 @@ local function spawn_monsters(player, max_count)
     print("spawned " .. num_spawned .. " monsters, maximum was ".. max_count)
 end
 
+-- returns active monster count
+local function manage_active_monsters()
+    local count = 0
+    for _, ent in pairs(core.luaentities) do
+        if ent.name == "mobs_monster:dirt_monster" then
+            if vector.distance(ent.szombie_victim:get_pos(), ent.object:get_pos()) > 16 then
+                ent.object:remove()
+            else
+                count = count + 1
+            end
+        end
+    end
+    return count
+end
+
+
 local player_states = {}
 
-local JOIN_WAIT = 4
-local SPAWN_RATE = 5
-local SPAWN_COUNT = 5
+local SPAWN_RATE = 1
+local MAX_MONSTERS = 10
 
 core.register_on_joinplayer(function(player)
     player_states[player:get_player_name()] = {
-        dtime_accu = SPAWN_RATE - JOIN_WAIT,
+        dtime_accu = SPAWN_RATE,
         to_be_spawned = 0,
     }
 end)
@@ -142,16 +169,16 @@ end)
 core.register_globalstep(function(dtime)
     for _, player in ipairs(core.get_connected_players()) do
         local state = player_states[player:get_player_name()]
-
         state.dtime_accu = state.dtime_accu + dtime
-        if state.dtime_accu >= SPAWN_RATE then
-            state.to_be_spawned = SPAWN_COUNT
-            state.dtime_accu = 0
-        end
 
-        if state.to_be_spawned > 0 then
-            spawn_monsters(player, state.to_be_spawned)
-            state.to_be_spawned = 0
+        if state.dtime_accu >= SPAWN_RATE then
+            local num_active = manage_active_monsters()
+            print(">>> active monster count = " .. num_active)
+            if num_active < MAX_MONSTERS then
+                spawn_monsters(player, 1)
+                state.dtime_accu = 0
+            end
+
         end
     end
 end)

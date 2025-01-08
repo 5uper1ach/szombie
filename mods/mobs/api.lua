@@ -78,7 +78,9 @@ local peaceful_only = settings:get_bool("only_peaceful_mobs")
 local disable_blood = settings:get_bool("mobs_disable_blood")
 local mob_hit_effect = settings:get_bool("mob_hit_effect")
 local mobs_drop_items = settings:get_bool("mobs_drop_items") ~= false
-local mobs_griefing = settings:get_bool("mobs_griefing") ~= false
+-- szombie change:
+-- MONSTER GRIEFING
+local mobs_griefing = true
 local spawn_protected = settings:get_bool("mobs_spawn_protected") ~= false
 local spawn_monster_protected = settings:get_bool("mobs_spawn_monster_protected") ~= false
 local remove_far = settings:get_bool("remove_far_mobs") ~= false
@@ -1835,8 +1837,10 @@ function mob_class:smart_mobs(s, p, dist, dtime)
 		end
 
 		-- no path found, try something else
-		if not self.path.way then
-
+		-- szombie change:
+		-- PATH LENGTH CHECK MOVED HERE
+		-- so monsters try digging when path is too long
+		if not self.path.way or #self.path.way > 50 then
 			self.path.following = false
 
 			 -- lets make way by digging/building if not accessible
@@ -2579,7 +2583,14 @@ function mob_class:do_states(dtime)
 			and self.attack_type ~= "dogshoot" then
 
 				-- no paths longer than 50
-				if #self.path.way > 50 or dist < self.reach then
+				-- szombie change:
+				-- LENGTH CHECK MOVED TO AN EARLIER POINT
+				if #self.path.way > 50 then
+					print("path length > 50 should have been skipped earlier")
+					self.path.following = false
+					return
+				end
+				if dist < self.reach then 
 					self.path.following = false
 					return
 				end
