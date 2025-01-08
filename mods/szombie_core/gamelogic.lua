@@ -62,7 +62,7 @@ local function get_eye_pos(player)
 end
 
 local function is_spawner_hidden(player, spawner_pos)
-    -- print("spawner check for " .. vector.to_string(spawner_pos))
+    print("spawner check for " .. vector.to_string(spawner_pos))
 
     local eye_pos = get_eye_pos(player)
 
@@ -76,20 +76,20 @@ local function is_spawner_hidden(player, spawner_pos)
     local bad_dir = vector.direction(eye_pos, spawner_pos)
     local actual_dir = player:get_look_dir()
     if vector.dot(bad_dir, actual_dir) < 0 then
-        -- print("player looks away, okay")
+        print("player looks away, okay")
         return true
     end
 
     if is_view_blocked(eye_pos, spawner_pos) then
-        -- print("view is blocked, okay")
+        print("view is blocked, okay")
         return true
     end
 
-    -- print("neither looking away nor view blocked, discarding")
+    print("neither looking away nor view blocked, discarding")
     return false
 end
 
-local function spawn_monster(player)
+local function spawn_monsters(player, max_count)
     local playerpos = player:get_pos()
     local blockpos = mapblock_lib.get_mapblock(playerpos)
 
@@ -104,20 +104,29 @@ local function spawn_monster(player)
     table.sort(avail_spawners, function(a, b)
         return vector.distance(playerpos, a) < vector.distance(playerpos, b)
     end)
+
+    local num_spawned = 0
+
     for _, spawner_pos in ipairs(avail_spawners) do
-        if is_spawner_hidden(player, spawner_pos) then
+        if is_spawner_hidden(player, spawner_pos) and
+                is_spawner_hidden(player, vector.offset(spawner_pos, 0, 1, 0)) then
             core.add_entity(spawner_pos, "mobs_monster:dirt_monster")
+            num_spawned = num_spawned + 1
+        end
+
+        if num_spawned >= max_count then
             break
         end
     end
     
+    print("spawned " .. num_spawned .. " monsters, maximum was ".. max_count)
 end
 
 local player_states = {}
 
 local JOIN_WAIT = 4
 local SPAWN_RATE = 5
-local SPAWN_COUNT = 1
+local SPAWN_COUNT = 5
 
 core.register_on_joinplayer(function(player)
     player_states[player:get_player_name()] = {
@@ -141,8 +150,8 @@ core.register_globalstep(function(dtime)
         end
 
         if state.to_be_spawned > 0 then
-            spawn_monster(player)
-            state.to_be_spawned = state.to_be_spawned - 1
+            spawn_monsters(player, state.to_be_spawned)
+            state.to_be_spawned = 0
         end
     end
 end)
