@@ -139,7 +139,10 @@ local function manage_active_monsters()
     local count = 0
     for _, ent in pairs(core.luaentities) do
         if ent.name == "mobs_monster:dirt_monster" then
-            if not ent.szombie_victim or vector.distance(ent.szombie_victim:get_pos(), ent.object:get_pos()) > 16 then
+            if not ent.szombie_victim or
+                    not ent.szombie_victim:get_pos() or
+                    not ent.object:get_pos() or
+                    vector.distance(ent.szombie_victim:get_pos(), ent.object:get_pos()) > 16 then
                 ent.object:remove()
             else
                 count = count + 1
