@@ -189,3 +189,10 @@ end)
 szombie_core.on_monster_die = function()
     -- TODO?
 end
+
+core.is_protected = function(pos, name)
+    if name == "" then -- monsters can edit
+        return false
+    end
+    return true -- players can't
+end

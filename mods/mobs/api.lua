@@ -1649,6 +1649,9 @@ local function can_dig_drop(pos)
 	and ndef.drawtype ~= "airlike"
 	and not ndef.groups.level
 	and not ndef.groups.unbreakable
+	-- szombie addition:
+	-- WHY WASN'T THIS RESPECTED BEFORE?
+	and ndef.diggable
 	and not ndef.groups.liquid then
 
 		local drops = minetest.get_node_drops(node)

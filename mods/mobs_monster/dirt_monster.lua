@@ -45,6 +45,9 @@ mobs:register_mob("mobs_monster:dirt_monster", {
 		punch_start = 40,
 		punch_end = 63
 	},
+	-- when digging down, don't kill yourself
+	fall_damage = false,
+	fear_height = 0,
 
 	on_die = function(self)
 		szombie_core.on_monster_die()
