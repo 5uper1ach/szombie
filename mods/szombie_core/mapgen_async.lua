@@ -1,8 +1,11 @@
 local old_get_current_modname = core.get_current_modname
+
 core.get_current_modname = function() return "mtzip" end
 dofile(core.get_modpath("mtzip") .. "/init.lua")
+
 core.get_current_modname = function() return "mapblock_lib" end
 dofile(core.get_modpath("mapblock_lib") .. "/szombie_init_async.lua")
+
 core.get_current_modname = old_get_current_modname
 
 local base_names = {"citychunk1", "citychunk2", "citychunk_garden"}
@@ -63,23 +66,26 @@ end
 core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
     local t1 = core.get_us_time()
 
-    for x = pos_min.x, pos_max.x do
-    for y = pos_min.y, pos_max.y do
-    for z = pos_min.z, pos_max.z do
-        local pos_in_mapblock = vector.new(x % core.MAP_BLOCKSIZE, y % core.MAP_BLOCKSIZE, z % core.MAP_BLOCKSIZE)
+    local blockpos_min = mapblock_lib.get_mapblock(pos_min)
+    local blockpos_max = mapblock_lib.get_mapblock(pos_max)
 
-        if pos_in_mapblock == vector.new(0, 0, 0) then
-            local chunkpos = vector.new(math.floor(x / CHUNKSIZE), 0, math.floor(z / CHUNKSIZE))
-            local schema_index = get_schema_index(chunkpos)
+    for block_x = blockpos_min.x, blockpos_max.x do
+    for block_y = blockpos_min.y, blockpos_max.y do
+    for block_z = blockpos_min.z, blockpos_max.z do
+        local x = block_x * core.MAP_BLOCKSIZE
+        local y = block_y * core.MAP_BLOCKSIZE
+        local z = block_z * core.MAP_BLOCKSIZE
 
-            local pos_in_chunk = vector.new(x % CHUNKSIZE, y - GROUND_LEVEL, z % CHUNKSIZE)
-            local mapblockpos_in_chunk = vector.new(math.floor(pos_in_chunk.x / core.MAP_BLOCKSIZE), math.floor(pos_in_chunk.y / core.MAP_BLOCKSIZE), math.floor(pos_in_chunk.z / core.MAP_BLOCKSIZE))
+        local chunkpos = vector.new(math.floor(x / CHUNKSIZE), 0, math.floor(z / CHUNKSIZE))
+        local schema_index = get_schema_index(chunkpos)
 
-            local mapblockpos = vector.new(math.floor(x / core.MAP_BLOCKSIZE), math.floor(y / core.MAP_BLOCKSIZE), math.floor(z / core.MAP_BLOCKSIZE))
+        local pos_in_chunk = vector.new(x % CHUNKSIZE, y - GROUND_LEVEL, z % CHUNKSIZE)
+        local mapblockpos_in_chunk = mapblock_lib.get_mapblock(pos_in_chunk)
 
-            if catalogs[schema_index]:has_mapblock(mapblockpos_in_chunk) then
-                assert(catalogs[schema_index]:deserialize(mapblockpos_in_chunk, mapblockpos, {mapgen_voxelmanip = vmanip}))
-            end
+        local mapblockpos = vector.new(block_x, block_y, block_z)
+
+        if catalogs[schema_index]:has_mapblock(mapblockpos_in_chunk) then
+            assert(catalogs[schema_index]:deserialize(mapblockpos_in_chunk, mapblockpos, {mapgen_voxelmanip = vmanip}))
         end
     end
     end
