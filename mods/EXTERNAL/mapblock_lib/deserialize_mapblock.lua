@@ -112,12 +112,17 @@ end
 function mapblock_lib.deserialize_part(pos1, pos2, data, metadata, options)
 	-- check if we have the same region (mapblock-aligned)
 	local same_region = mapblock_lib.is_mapblock_aligned(pos1, pos2)
-	local manip = minetest.get_voxel_manip(pos1, pos2)
+	local manip
+	if options.mapgen_voxelmanip then
+		manip = options.mapgen_voxelmanip
+	else
+		manip = minetest.get_voxel_manip(pos1, pos2)
+	end
 	local e1, e2, node_data
 
 	-- overwrite flag
 	local replace = options.mode ~= "add"
-	if replace and same_region then
+	if replace and same_region and not options.mapgen_voxelmanip then
 		-- replace node data 1:1
 		manip:set_data(data.node_ids)
 		manip:set_light_data(data.param1)
@@ -129,7 +134,11 @@ function mapblock_lib.deserialize_part(pos1, pos2, data, metadata, options)
 		node_data = data.node_ids
 	else
 		-- overwrite with air check one by one
-		e1, e2 = manip:read_from_map(pos1, pos2)
+		if options.mapgen_voxelmanip then
+			e1, e2 = manip:get_emerged_area()
+		else
+			e1, e2 = manip:read_from_map(pos1, pos2)
+		end
 		local area = VoxelArea:new({MinEdge=e1, MaxEdge=e2})
 
 		node_data = manip:get_data()
@@ -156,34 +165,37 @@ function mapblock_lib.deserialize_part(pos1, pos2, data, metadata, options)
 		manip:set_param2_data(param2)
 	end
 
-	manip:write_to_map()
+	if not options.mapgen_voxelmanip then
+		manip:write_to_map()
+	end
 
-	-- deserialize metadata
-	if metadata and metadata.meta then
-		local area = VoxelArea:new({MinEdge=e1, MaxEdge=e2})
-		for pos_str, md in pairs(metadata.meta) do
-			local relative_pos = minetest.string_to_pos(pos_str)
-			local absolute_pos = vector.add(pos1, relative_pos)
-			local meta = minetest.get_meta(absolute_pos)
-			meta:from_table(md)
-			if options.on_metadata then
-				-- execute callback
-				local i = area:indexp(absolute_pos)
-				local content_id = node_data[i]
-				options.on_metadata(absolute_pos, content_id, meta)
+	if not options.mapgen_voxelmanip then
+		-- deserialize metadata
+		if metadata and metadata.meta then
+			local area = VoxelArea:new({MinEdge=e1, MaxEdge=e2})
+			for pos_str, md in pairs(metadata.meta) do
+				local relative_pos = minetest.string_to_pos(pos_str)
+				local absolute_pos = vector.add(pos1, relative_pos)
+				local meta = minetest.get_meta(absolute_pos)
+				meta:from_table(md)
+				if options.on_metadata then
+					-- execute callback
+					local i = area:indexp(absolute_pos)
+					local content_id = node_data[i]
+					options.on_metadata(absolute_pos, content_id, meta)
+				end
+			end
+		end
+
+		-- deserialize node timers
+		if data.metadata and data.metadata.timers then
+			for pos_str, timer_data in pairs(data.metadata.timers) do
+				local relative_pos = minetest.string_to_pos(pos_str)
+				local absolute_pos = vector.add(pos1, relative_pos)
+				minetest.get_node_timer(absolute_pos):set(timer_data.timeout, timer_data.elapsed)
 			end
 		end
 	end
-
-	-- deserialize node timers
-	if data.metadata and data.metadata.timers then
-		for pos_str, timer_data in pairs(data.metadata.timers) do
-			local relative_pos = minetest.string_to_pos(pos_str)
-			local absolute_pos = vector.add(pos1, relative_pos)
-			minetest.get_node_timer(absolute_pos):set(timer_data.timeout, timer_data.elapsed)
-		end
-	end
-
 end
 
 ------

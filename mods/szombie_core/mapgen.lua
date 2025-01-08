@@ -1,3 +1,5 @@
+core.register_mapgen_script(core.get_modpath("szombie_core") .. "/mapgen_async.lua")
+
 local storage = core.get_mod_storage()
 
 local GENERATE_VARIANT_SCHEMATICS = false
@@ -91,65 +93,3 @@ minetest.register_alias("szombie_core:stone", "szombie_core:checkerboard")
 
 minetest.set_mapgen_setting("mg_name", "singlenode", true)
 minetest.register_alias_force("mapgen_singlenode", "air")
-
-local vm_data
-
-local GROUND_LEVEL = -18
-local CHUNKSIZE = 48
-
-local chunk_schema_selections = core.deserialize(storage:get("chunk_schema_selections")) or {}
-
-local function is_valid(chunkpos, selection)
-    local neighbors = {vector.new(-1, 0, 0), vector.new(1, 0, 0), vector.new(0, 0, -1), vector.new(0, 0, 1)}
-    for _, offset in ipairs(neighbors) do
-        local neighbor_chunkpos = chunkpos + offset
-        local neighbor_selection = chunk_schema_selections[neighbor_chunkpos:to_string()]
-        if neighbor_selection and neighbor_selection == selection then
-            -- print("disallowing " .. schema_names[selection] .. " for " .. chunkpos:to_string() .. " because " .. neighbor_chunkpos:to_string() .. " is also " .. schema_names[selection])
-            return false
-        end
-    end
-    return true
-end
-
-local function get_schema_index(chunkpos)
-    local chunkpos_str = chunkpos:to_string()
-
-    if chunk_schema_selections[chunkpos_str] then
-        return chunk_schema_selections[chunkpos_str]
-    end
-
-    local index
-    repeat
-        index = math.random(#schema_names)
-    until is_valid(chunkpos, index)
-
-    chunk_schema_selections[chunkpos_str] = index
-    storage:set_string("chunk_schema_selections", core.serialize(chunk_schema_selections))
-
-    return index
-end
-
-minetest.register_on_generated(function(pos_min, pos_max)
-    for x = pos_min.x, pos_max.x do
-        for y = pos_min.y, pos_max.y do
-            for z = pos_min.z, pos_max.z do
-                local pos_in_mapblock = vector.new(x % core.MAP_BLOCKSIZE, y % core.MAP_BLOCKSIZE, z % core.MAP_BLOCKSIZE)
-
-                if pos_in_mapblock == vector.new(0, 0, 0) then
-                    local chunkpos = vector.new(math.floor(x / CHUNKSIZE), 0, math.floor(z / CHUNKSIZE))
-                    local schema_index = get_schema_index(chunkpos)
-
-                    local pos_in_chunk = vector.new(x % CHUNKSIZE, y - GROUND_LEVEL, z % CHUNKSIZE)
-                    local mapblockpos_in_chunk = vector.new(math.floor(pos_in_chunk.x / core.MAP_BLOCKSIZE), math.floor(pos_in_chunk.y / core.MAP_BLOCKSIZE), math.floor(pos_in_chunk.z / core.MAP_BLOCKSIZE))
-
-                    local mapblockpos = vector.new(math.floor(x / core.MAP_BLOCKSIZE), math.floor(y / core.MAP_BLOCKSIZE), math.floor(z / core.MAP_BLOCKSIZE))
-
-                    if catalogs[schema_index]:has_mapblock(mapblockpos_in_chunk) then
-                        assert(catalogs[schema_index]:deserialize(mapblockpos_in_chunk, mapblockpos, {}))
-                    end
-                end
-            end
-        end
-    end
-end)
