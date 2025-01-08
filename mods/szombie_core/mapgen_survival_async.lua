@@ -76,6 +76,8 @@ core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
     local blockpos_min = mapblock_lib.get_mapblock(pos_min)
     local blockpos_max = mapblock_lib.get_mapblock(pos_max)
 
+    local check_blockposs = {}
+
     for block_x = blockpos_min.x, blockpos_max.x do
     for block_y = blockpos_min.y, blockpos_max.y do
     for block_z = blockpos_min.z, blockpos_max.z do
@@ -100,6 +102,7 @@ core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
                     },
                 },
             }))
+            table.insert(check_blockposs, mapblockpos)
         end
     end
     end
@@ -114,10 +117,7 @@ core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
     local spawner = core.get_content_id("szombie_core:spawner")
     local spawner_poss = {}
 
-    for block_x = blockpos_min.x, blockpos_max.x do
-    for block_y = blockpos_min.y, blockpos_max.y do
-    for block_z = blockpos_min.z, blockpos_max.z do
-        local blockpos = vector.new(block_x, block_y, block_z)
+    for _, blockpos in ipairs(check_blockposs) do
         local pos_min, pos_max = mapblock_lib.get_mapblock_bounds_from_mapblock(blockpos)
         local list = {}
 
@@ -134,8 +134,6 @@ core.register_on_generated(function(vmanip, pos_min, pos_max, blockseed)
         if #list > 0 then
             spawner_poss[blockpos:to_string()] = list
         end
-    end
-    end
     end
 
     assert(core.save_gen_notify("szombie_core:spawner_poss", spawner_poss))
