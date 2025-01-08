@@ -2016,7 +2016,10 @@ function mob_class:general_attack()
 		-- choose closest player to attack that isnt self
 		if dist ~= 0
 		and dist < min_dist
-		and self:line_of_sight(sp, p, 2) == true
+		-- szombie change:
+		-- DON'T SKIP PLAYERS WE CANNOT SEE
+		-- monsters come out of the abandoned houses as if they could smell the player
+		-- and self:line_of_sight(sp, p, 2) == true
 		and not is_peaceful_player(player) then
 			min_dist = dist
 			min_player = player
