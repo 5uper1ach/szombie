@@ -1,3 +1,5 @@
+local storage = core.get_mod_storage()
+
 local GENERATE_VARIANT_SCHEMATICS = false
 
 local schema_names = {"citychunk1", "citychunk2", "citychunk_garden"}
@@ -95,7 +97,7 @@ local vm_data
 local GROUND_LEVEL = -18
 local CHUNKSIZE = 48
 
-local chunk_schema_selections = {}
+local chunk_schema_selections = core.deserialize(storage:get("chunk_schema_selections")) or {}
 
 local function is_valid(chunkpos, selection)
     local neighbors = {vector.new(-1, 0, 0), vector.new(1, 0, 0), vector.new(0, 0, -1), vector.new(0, 0, 1)}
@@ -121,7 +123,10 @@ local function get_schema_index(chunkpos)
     repeat
         index = math.random(#schema_names)
     until is_valid(chunkpos, index)
+
     chunk_schema_selections[chunkpos_str] = index
+    storage:set_string("chunk_schema_selections", core.serialize(chunk_schema_selections))
+
     return index
 end
 
