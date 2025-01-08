@@ -13,11 +13,11 @@ minetest.register_on_joinplayer(function(plaer, last_login)
 end)
 
 core.register_node("szombie_core:spawner", {
-    -- drawtype = "airlike",
+    drawtype = "airlike",
     -- for debugging:
-    drawtype = "normal",
-    tiles = {"default_dirt.png"},
-    light_source = core.LIGHT_MAX / 4,
+    -- drawtype = "normal",
+    -- tiles = {"default_dirt.png"},
+    -- light_source = core.LIGHT_MAX / 4,
 
     diggable = false,
     buildable_to = false,
