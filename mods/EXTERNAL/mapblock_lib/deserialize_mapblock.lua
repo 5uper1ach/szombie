@@ -111,18 +111,23 @@ end
 
 function mapblock_lib.deserialize_part(pos1, pos2, data, metadata, options)
 	-- check if we have the same region (mapblock-aligned)
-	local same_region = mapblock_lib.is_mapblock_aligned(pos1, pos2)
+	local same_region
 	local manip
 	if options.mapgen_voxelmanip then
 		manip = options.mapgen_voxelmanip
+		-- cannot ever be aligned because we don't control the mapgen
+		-- vmanip's emerged area and it always includes one mapblock
+		-- as border for overgeneration, we dont want to fill that
+		same_region = false
 	else
 		manip = minetest.get_voxel_manip(pos1, pos2)
+		same_region = mapblock_lib.is_mapblock_aligned(pos1, pos2)
 	end
 	local e1, e2, node_data
 
 	-- overwrite flag
 	local replace = options.mode ~= "add"
-	if replace and same_region and not options.mapgen_voxelmanip then
+	if replace and same_region then
 		-- replace node data 1:1
 		manip:set_data(data.node_ids)
 		manip:set_light_data(data.param1)
