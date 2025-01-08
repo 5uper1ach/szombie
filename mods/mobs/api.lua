@@ -49,18 +49,16 @@ local vsubtract = vector.subtract
 -- REPLACED minetest.settings to prevent users from breaking the game via Mobs Redo settings.
 local settings = {
 	get = function(self, key)
-		if key == "active_block_range" then
-			return minetest.settings:get("active_block_range")
-		end
-		if key == "creative_mode" or key == "enable_damage" then
-			return "true"
+		if key == "active_block_range" or
+				key == "creative_mode" or key == "enable_damage" then
+			return core.settings:get(key)
 		end
 		-- returns nil if non-existent
 		return nil
 	end,
 	get_bool = function(self, key, default)
 		if key == "creative_mode" or key == "enable_damage" then
-			return true
+			return core.settings:get_bool(key)
 		end
 		-- returns nil if non-existent and no default specified
 		return default

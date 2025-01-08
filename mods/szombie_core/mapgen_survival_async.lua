@@ -23,8 +23,8 @@ for i, name in ipairs(schema_names) do
     catalogs[i] = assert(mapblock_lib.get_catalog(core.get_modpath("szombie_core") .. "/schematics/" .. name .. ".zip"))
 end
 
+local CHUNKSIZE = shared.chunksize
 local GROUND_LEVEL = -18
-local CHUNKSIZE = 48
 
 -- not thread-safe I guess
 
