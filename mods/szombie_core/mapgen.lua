@@ -97,6 +97,27 @@ local CHUNKSIZE = 48
 
 local chunk_schema_selections = {}
 
+local function is_valid(chunkpos, selection)
+    local neighbors = {vector.new(-1, 0, 0), vector.new(1, 0, 0), vector.new(0, 0, -1), vector.new(0, 0, 1)}
+    for _, offset in ipairs(neighbors) do
+        local neighbor_chunkpos = chunkpos + offset
+        local neighbor_selection = chunk_schema_selections[neighbor_chunkpos:to_string()]
+        if neighbor_selection and neighbor_selection == selection then
+            -- print("disallowing " .. schema_names[selection] .. " for " .. chunkpos:to_string() .. " because " .. neighbor_chunkpos:to_string() .. " is also " .. schema_names[selection])
+            return false
+        end
+    end
+    return true
+end
+
+local function select_schema_index(chunkpos)
+    local index
+    repeat
+        index = math.random(#schema_names)
+    until is_valid(chunkpos, index)
+    return index
+end
+
 minetest.register_on_generated(function(pos_min, pos_max)
     for x = pos_min.x, pos_max.x do
         for y = pos_min.y, pos_max.y do
@@ -106,7 +127,7 @@ minetest.register_on_generated(function(pos_min, pos_max)
                 if pos_in_mapblock == vector.new(0, 0, 0) then
                     local chunkpos = vector.new(math.floor(x / CHUNKSIZE), 0, math.floor(z / CHUNKSIZE))
                     if not chunk_schema_selections[chunkpos:to_string()] then
-                        chunk_schema_selections[chunkpos:to_string()] = math.random(#schema_names)
+                        chunk_schema_selections[chunkpos:to_string()] = select_schema_index(chunkpos)
                     end
                     local schema_index = chunk_schema_selections[chunkpos:to_string()]
 
