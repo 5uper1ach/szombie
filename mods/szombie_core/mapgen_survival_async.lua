@@ -40,10 +40,13 @@ local function storage_set_selection(chunkpos, selection)
 end
 
 local function is_valid(chunkpos, selection)
+    -- only horizontal, no diagonals
     local neighbors = {vector.new(-1, 0, 0), vector.new(1, 0, 0), vector.new(0, 0, -1), vector.new(0, 0, 1)}
     for _, offset in ipairs(neighbors) do
         local neighbor_chunkpos = chunkpos + offset
         local neighbor_selection = storage_get_selection(neighbor_chunkpos)
+        -- intentionally only considered the same when rotation suffix is also the same
+        -- (simply don't have enough different chunks otherwise)
         if neighbor_selection and neighbor_selection == selection then
             -- print("disallowing " .. schema_names[selection] .. " for " .. chunkpos:to_string() .. " because " .. neighbor_chunkpos:to_string() .. " is also " .. schema_names[selection])
             return false
