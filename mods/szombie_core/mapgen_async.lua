@@ -1,3 +1,5 @@
+local shared = dofile(core.get_modpath("szombie_core") .. "/mapgen_shared.lua")
+
 local old_get_current_modname = core.get_current_modname
 
 core.get_current_modname = function() return "mtzip" end
@@ -8,12 +10,10 @@ dofile(core.get_modpath("mapblock_lib") .. "/szombie_init_async.lua")
 
 core.get_current_modname = old_get_current_modname
 
-local base_names = {"citychunk1", "citychunk2", "citychunk_garden"}
-local variant_suffixes = {"", "_r90", "_r180", "_r270"}
 local schema_names = {}
 
-for _, base_name in ipairs(base_names) do
-    for _, suffix in ipairs(variant_suffixes) do
+for _, base_name in ipairs(shared.base_names) do
+    for _, suffix in ipairs(shared.variant_suffixes) do
         table.insert(schema_names, base_name .. suffix)
     end
 end
