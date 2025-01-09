@@ -73,6 +73,7 @@ end
 
 local replacements = {
     ["stairs:stair_inner_glass"] = "szombie_core:spawner",
+    ["default:chest"] = "szombie_core:loot",
 }
 for name in pairs(core.registered_nodes) do
     -- mobs can't open doors for now, so remove them

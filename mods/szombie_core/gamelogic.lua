@@ -5,7 +5,6 @@ end
 
 minetest.register_on_newplayer(function(player)
     player:get_inventory():add_item("main", "shooter:machine_gun")
-    player:get_inventory():add_item("main", "shooter:ammo 9999")
 end)
 
 minetest.register_on_joinplayer(function(plaer, last_login)
@@ -34,6 +33,22 @@ core.register_node(SPAWNER_NAME, {
     pointable = false,
 })
 
+core.register_node("szombie_core:loot", {
+    paramtype = "light",
+    light_source = 1,
+	paramtype2 = "facedir",
+	legacy_facedir_simple = true,
+    drop = "shooter:ammo",
+    groups = {dig_immediate = 3},
+	tiles = {
+		"default_chest_top.png",
+		"default_chest_top.png",
+		"default_chest_side.png^[transformFX",
+		"default_chest_side.png",
+		"default_chest_side.png",
+		"default_chest_front.png"
+	},
+})
 
 
 local function is_spawner_free(spawner_pos)
@@ -230,8 +245,8 @@ szombie_core.on_monster_die = function()
 end
 
 core.is_protected = function(pos, name)
-    if name == "" then -- monsters can edit
-        return false
+    if name == "" then -- monsters can edit everything except loot
+        return core.get_node(pos).name == "szombie_core:loot"
     end
-    return true -- players can't
+    return core.get_node(pos).name ~= "szombie_core:loot" -- players can't edit anything except loot
 end
