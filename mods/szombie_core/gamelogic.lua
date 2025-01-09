@@ -175,9 +175,10 @@ local function manage_active_monsters()
         if ent.name == MONSTER_NAME then
             local monster_pos = ent.object:get_pos()
             local victim_pos = ent.szombie_victim and ent.szombie_victim:get_pos()
-            if not monster_pos or not victim_pos or
-                    vector.distance(monster_pos, victim_pos) > 16 then
-                print(">>>>>>>>>>> removing monster at " .. (monster_pos and vector.to_string(monster_pos) or "??") .. ", too far away.")
+            if not monster_pos or not victim_pos then
+                ent.object:remove()
+            elseif vector.distance(monster_pos, victim_pos) > 16 then
+                print(">>>>>>>>>>> removing monster at " .. vector.to_string(monster_pos) .. ", too far away.")
                 ent.object:remove()
             else
                 count = count + 1
@@ -212,10 +213,10 @@ core.register_globalstep(function(dtime)
         state.dtime_accu = state.dtime_accu + dtime
 
         if state.dtime_accu >= SPAWN_RATE then
-            print(">>> " .. player:get_player_name())
             local num_active = manage_active_monsters()
-            print(">>> global active monster count = " .. num_active)
             if num_active < MAX_MONSTERS then
+                print(">>> " .. player:get_player_name())
+                print(">>> global active monster count = " .. num_active)
                 spawn_monsters(player, 1)
             end
             state.dtime_accu = 0
