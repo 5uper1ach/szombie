@@ -12,7 +12,14 @@ minetest.register_on_joinplayer(function(plaer, last_login)
     core.set_timeofday(0.75)
 end)
 
-core.register_node("szombie_core:spawner", {
+
+
+local SPAWNER_NAME = "szombie_core:spawner"
+local MONSTER_NAME = "mobs_monster:dirt_monster"
+
+
+
+core.register_node(SPAWNER_NAME, {
     drawtype = "airlike",
     -- for debugging:
     -- drawtype = "normal",
@@ -27,28 +34,16 @@ core.register_node("szombie_core:spawner", {
     pointable = false,
 })
 
+
+
 local function is_spawner_free(spawner_pos)
     for _, obj in ipairs(core.get_objects_inside_radius(spawner_pos, 8)) do
-        if obj:get_luaentity() and obj:get_luaentity().name == "mobs_monster:dirt_monster" then
+        local ent = obj:get_luaentity()
+        if ent and ent.name == MONSTER_NAME then
             return false
         end
     end
     return true
-end
-
-local function is_view_blocked(pos1, pos2)
-    local ray = core.raycast(pos1, pos2, false, false)
-    for pointed in ray do
-        if pointed.type == "node" then
-            local node = core.get_node(pointed.under)
-            local def = core.registered_nodes[node.name]
-            if node.name ~= "szombie_core:spawner" and
-                    (not def or def.drawtype ~= "airlike") then
-                return true
-            end
-        end
-    end
-    return false
 end
 
 local function get_eye_pos(player)
@@ -58,6 +53,23 @@ local function get_eye_pos(player)
     local first_person = player:get_eye_offset()
     pos = pos + first_person/10
     return pos
+end
+
+local function is_view_blocked(pos1, pos2)
+    local ray = core.raycast(pos1, pos2, false, false)
+    for pointed in ray do
+        if pointed.type == "node" then
+            local node = core.get_node(pointed.under)
+            local def = core.registered_nodes[node.name]
+            if node.name ~= SPAWNER_NAME and
+                    -- TODO: add use_texture_alpha check?
+                    -- so that semi/clip-transparent nodes like glass don't count as blocking the view
+                    (not def or def.drawtype ~= "airlike") then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 local function is_spawner_hidden(player, spawner_pos)
@@ -71,7 +83,7 @@ local function is_spawner_hidden(player, spawner_pos)
         return false
     end
 
-    -- player looks away, they won't notice if the view isn't blocked
+    -- player looks away, they won't notice even if the view isn't blocked
     local bad_dir = vector.direction(eye_pos, spawner_pos)
     local actual_dir = player:get_look_dir()
     if vector.dot(bad_dir, actual_dir) < 0 then
@@ -97,6 +109,7 @@ local function is_spawner_possible(spawner_pos)
     end
 
     for _, player in ipairs(core.get_connected_players()) do
+        -- monster is two nodes tall
         if not is_spawner_hidden(player, spawner_pos) or
                 not is_spawner_hidden(player, vector.offset(spawner_pos, 0, 1, 0)) then
             print("    not hidden for " .. player:get_player_name() .. ", discarding.")
@@ -107,6 +120,8 @@ local function is_spawner_possible(spawner_pos)
     print("    possible!")
     return true
 end
+
+
 
 -- intentionally also includes 0, 0, 0
 local offsets = {}
@@ -138,7 +153,7 @@ local function spawn_monsters(player, max_count)
 
     for _, spawner_pos in ipairs(avail_spawners) do
         if is_spawner_possible(spawner_pos) then
-            local obj = core.add_entity(spawner_pos, "mobs_monster:dirt_monster")
+            local obj = core.add_entity(spawner_pos, MONSTER_NAME)
             obj:get_luaentity().szombie_victim = player
             num_spawned = num_spawned + 1
         end
@@ -151,15 +166,18 @@ local function spawn_monsters(player, max_count)
     print("spawned " .. num_spawned .. " monsters, maximum was ".. max_count)
 end
 
+
+
 -- returns active monster count
 local function manage_active_monsters()
     local count = 0
     for _, ent in pairs(core.luaentities) do
-        if ent.name == "mobs_monster:dirt_monster" then
-            if not ent.szombie_victim or
-                    not ent.szombie_victim:get_pos() or
-                    not ent.object:get_pos() or
-                    vector.distance(ent.szombie_victim:get_pos(), ent.object:get_pos()) > 16 then
+        if ent.name == MONSTER_NAME then
+            local monster_pos = ent.object:get_pos()
+            local victim_pos = ent.szombie_victim and ent.szombie_victim:get_pos()
+            if not monster_pos or not victim_pos or
+                    vector.distance(monster_pos, victim_pos) > 16 then
+                print(">>>>>>>>>>> removing monster at " .. (monster_pos and vector.to_string(monster_pos) or "??") .. ", too far away.")
                 ent.object:remove()
             else
                 count = count + 1
@@ -170,15 +188,17 @@ local function manage_active_monsters()
 end
 
 
-local player_states = {}
 
+-- per-player
 local SPAWN_RATE = 1
+-- not per-player, global cap because of bad performance of mob library
 local MAX_MONSTERS = 10
+
+local player_states = {}
 
 core.register_on_joinplayer(function(player)
     player_states[player:get_player_name()] = {
-        dtime_accu = SPAWN_RATE,
-        to_be_spawned = 0,
+        dtime_accu = 0,
     }
 end)
 
@@ -192,13 +212,13 @@ core.register_globalstep(function(dtime)
         state.dtime_accu = state.dtime_accu + dtime
 
         if state.dtime_accu >= SPAWN_RATE then
+            print(">>> " .. player:get_player_name())
             local num_active = manage_active_monsters()
-            print(">>> active monster count = " .. num_active)
+            print(">>> global active monster count = " .. num_active)
             if num_active < MAX_MONSTERS then
                 spawn_monsters(player, 1)
-                state.dtime_accu = 0
             end
-
+            state.dtime_accu = 0
         end
     end
 end)
