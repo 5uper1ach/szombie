@@ -153,7 +153,8 @@ local function spawn_monsters(player, max_count)
 
     for _, spawner_pos in ipairs(avail_spawners) do
         if is_spawner_possible(spawner_pos) then
-            local obj = core.add_entity(spawner_pos, MONSTER_NAME)
+            -- y+0.5 to fix sinking into ground
+            local obj = core.add_entity(vector.offset(spawner_pos, 0, 0.5, 0), MONSTER_NAME)
             obj:get_luaentity().szombie_victim = player
             num_spawned = num_spawned + 1
         end
