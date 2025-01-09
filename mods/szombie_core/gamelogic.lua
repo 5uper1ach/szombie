@@ -73,13 +73,13 @@ local function is_view_blocked(pos1, pos2)
 end
 
 local function is_spawner_hidden(player, spawner_pos)
-    print("    checking visibility of " .. vector.to_string(spawner_pos) .. " for " .. player:get_player_name())
+    -- print("    checking visibility of " .. vector.to_string(spawner_pos) .. " for " .. player:get_player_name())
 
     local eye_pos = get_eye_pos(player)
 
     -- player too close, they'll definitely notice
     if vector.distance(eye_pos, spawner_pos) < 3 then
-        print("        player too close, not okay.")
+        -- print("        player too close, not okay.")
         return false
     end
 
@@ -87,24 +87,24 @@ local function is_spawner_hidden(player, spawner_pos)
     local bad_dir = vector.direction(eye_pos, spawner_pos)
     local actual_dir = player:get_look_dir()
     if vector.dot(bad_dir, actual_dir) < 0 then
-        print("        player looks away, okay.")
+        -- print("        player looks away, okay.")
         return true
     end
 
     if is_view_blocked(eye_pos, spawner_pos) then
-        print("        view is blocked, okay.")
+        -- print("        view is blocked, okay.")
         return true
     end
 
-    print("        neither looking away nor view blocked, not okay.")
+    -- print("        neither looking away nor view blocked, not okay.")
     return false
 end
 
 local function is_spawner_possible(spawner_pos)
-    print("is_spawner_possible called for " .. vector.to_string(spawner_pos))
+    -- print("is_spawner_possible called for " .. vector.to_string(spawner_pos))
 
     if not is_spawner_free(spawner_pos) then
-        print("    not free, discarding.")
+        -- print("    not free, discarding.")
         return false
     end
 
@@ -112,12 +112,12 @@ local function is_spawner_possible(spawner_pos)
         -- monster is two nodes tall
         if not is_spawner_hidden(player, spawner_pos) or
                 not is_spawner_hidden(player, vector.offset(spawner_pos, 0, 1, 0)) then
-            print("    not hidden for " .. player:get_player_name() .. ", discarding.")
+            -- print("    not hidden for " .. player:get_player_name() .. ", discarding.")
             return false
         end
     end
 
-    print("    possible!")
+    -- print("    possible!")
     return true
 end
 
