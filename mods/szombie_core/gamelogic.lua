@@ -4,7 +4,10 @@ if not minetest.settings:get_bool("enable_damage") or
 end
 
 minetest.register_on_newplayer(function(player)
-    player:get_inventory():add_item("main", "shooter:machine_gun")
+    local inv = player:get_inventory()
+    inv:set_size("main", 2)
+    inv:add_item("main", "shooter:machine_gun")
+    player:hud_set_hotbar_itemcount(2)
 end)
 
 minetest.register_on_joinplayer(function(plaer, last_login)
@@ -14,6 +17,7 @@ end)
 
 
 local SPAWNER_NAME = "szombie_core:spawner"
+local LOOT_NAME = "szombie_core:loot"
 local MONSTER_NAME = "mobs_monster:dirt_monster"
 
 
@@ -33,12 +37,13 @@ core.register_node(SPAWNER_NAME, {
     pointable = false,
 })
 
-core.register_node("szombie_core:loot", {
+core.register_node(LOOT_NAME, {
     paramtype = "light",
     light_source = 1,
     paramtype2 = "facedir",
     legacy_facedir_simple = true,
     drop = "shooter:ammo",
+    sounds = default.node_sound_wood_defaults(),
     groups = {dig_immediate = 3},
     tiles = {
         "default_chest_top.png",
@@ -246,7 +251,19 @@ end
 
 core.is_protected = function(pos, name)
     if name == "" then -- monsters can edit everything except loot
-        return core.get_node(pos).name == "szombie_core:loot"
+        return core.get_node(pos).name == LOOT_NAME
     end
-    return core.get_node(pos).name ~= "szombie_core:loot" -- players can't edit anything except loot
+    return core.get_node(pos).name ~= LOOT_NAME -- players can't edit anything except loot
 end
+
+-- no dropped items except from loot wanted
+-- (monsters can dig nodes)
+core.register_on_mods_loaded(function()
+    for name in ipairs(core.registered_nodes) do
+        if name ~= LOOT_NAME then
+            core.override_item(name, {
+                drop = "",
+            })
+        end
+    end
+end)
