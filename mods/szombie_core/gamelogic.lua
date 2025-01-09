@@ -36,18 +36,18 @@ core.register_node(SPAWNER_NAME, {
 core.register_node("szombie_core:loot", {
     paramtype = "light",
     light_source = 1,
-	paramtype2 = "facedir",
-	legacy_facedir_simple = true,
+    paramtype2 = "facedir",
+    legacy_facedir_simple = true,
     drop = "shooter:ammo",
     groups = {dig_immediate = 3},
-	tiles = {
-		"default_chest_top.png",
-		"default_chest_top.png",
-		"default_chest_side.png^[transformFX",
-		"default_chest_side.png",
-		"default_chest_side.png",
-		"default_chest_front.png"
-	},
+    tiles = {
+        "default_chest_top.png",
+        "default_chest_top.png",
+        "default_chest_side.png^[transformFX",
+        "default_chest_side.png",
+        "default_chest_side.png",
+        "default_chest_front.png"
+    },
 })
 
 
