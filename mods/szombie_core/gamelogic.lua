@@ -27,14 +27,13 @@ core.register_node("szombie_core:spawner", {
     pointable = false,
 })
 
--- intentionally also includes 0, 0, 0
-local offsets = {}
-for x = -1, 1 do
-for y = -1, 1 do
-for z = -1, 1 do
-    table.insert(offsets, vector.new(x, y, z))
-end
-end
+local function is_spawner_free(spawner_pos)
+    for _, obj in ipairs(core.get_objects_inside_radius(spawner_pos, 8)) do
+        if obj:get_luaentity() and obj:get_luaentity().name == "mobs_monster:dirt_monster" then
+            return false
+        end
+    end
+    return true
 end
 
 local function is_view_blocked(pos1, pos2)
@@ -62,13 +61,13 @@ local function get_eye_pos(player)
 end
 
 local function is_spawner_hidden(player, spawner_pos)
-    print("spawner check for " .. vector.to_string(spawner_pos))
+    print("    checking visibility of " .. vector.to_string(spawner_pos) .. " for " .. player:get_player_name())
 
     local eye_pos = get_eye_pos(player)
 
     -- player too close, they'll definitely notice
     if vector.distance(eye_pos, spawner_pos) < 3 then
-        print("player too close, discarding")
+        print("        player too close, not okay.")
         return false
     end
 
@@ -76,27 +75,47 @@ local function is_spawner_hidden(player, spawner_pos)
     local bad_dir = vector.direction(eye_pos, spawner_pos)
     local actual_dir = player:get_look_dir()
     if vector.dot(bad_dir, actual_dir) < 0 then
-        print("player looks away, okay")
+        print("        player looks away, okay.")
         return true
     end
 
     if is_view_blocked(eye_pos, spawner_pos) then
-        print("view is blocked, okay")
+        print("        view is blocked, okay.")
         return true
     end
 
-    print("neither looking away nor view blocked, discarding")
+    print("        neither looking away nor view blocked, not okay.")
     return false
 end
 
-local function is_spawner_free(spawner_pos)
-    for _, obj in ipairs(core.get_objects_inside_radius(spawner_pos, 8)) do
-        if obj:get_luaentity() and obj:get_luaentity().name == "mobs_monster:dirt_monster" then
-            print("spawner " .. vector.to_string(spawner_pos) .. " not free, discarding")
+local function is_spawner_possible(spawner_pos)
+    print("is_spawner_possible called for " .. vector.to_string(spawner_pos))
+
+    if not is_spawner_free(spawner_pos) then
+        print("    not free, discarding.")
+        return false
+    end
+
+    for _, player in ipairs(core.get_connected_players()) do
+        if not is_spawner_hidden(player, spawner_pos) or
+                not is_spawner_hidden(player, vector.offset(spawner_pos, 0, 1, 0)) then
+            print("    not hidden for " .. player:get_player_name() .. ", discarding.")
             return false
         end
     end
+
+    print("    possible!")
     return true
+end
+
+-- intentionally also includes 0, 0, 0
+local offsets = {}
+for x = -1, 1 do
+for y = -1, 1 do
+for z = -1, 1 do
+    table.insert(offsets, vector.new(x, y, z))
+end
+end
 end
 
 local function spawn_monsters(player, max_count)
@@ -118,9 +137,7 @@ local function spawn_monsters(player, max_count)
     local num_spawned = 0
 
     for _, spawner_pos in ipairs(avail_spawners) do
-        if is_spawner_hidden(player, spawner_pos) and
-                is_spawner_hidden(player, vector.offset(spawner_pos, 0, 1, 0)) and
-                is_spawner_free(spawner_pos) then
+        if is_spawner_possible(spawner_pos) then
             local obj = core.add_entity(spawner_pos, "mobs_monster:dirt_monster")
             obj:get_luaentity().szombie_victim = player
             num_spawned = num_spawned + 1
