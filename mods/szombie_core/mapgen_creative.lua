@@ -11,9 +11,8 @@ local CHUNKSIZE = shared.chunksize
 local GROUND_LEVEL = -3
 
 local ROADWIDTH = 3
-local BLOCKSIZE = 64
 local ROAD_1 = ROADWIDTH - 1
-local ROAD_2 = BLOCKSIZE - ROADWIDTH
+local ROAD_2 = CHUNKSIZE - ROADWIDTH
 
 local DEBUG_ONE_BLOCK_ONLY = false
 
@@ -34,8 +33,8 @@ minetest.register_on_generated(function(pos_min, pos_max)
                 local index = vm_area:index(x, y, z)
 
                 if y == GROUND_LEVEL then
-                    local blockpos = vector.new(math.floor(x / BLOCKSIZE), 0, math.floor(z / BLOCKSIZE))
-                    local pos_in_block = vector.new(x % BLOCKSIZE, 0, z % BLOCKSIZE)
+                    local blockpos = vector.new(math.floor(x / CHUNKSIZE), 0, math.floor(z / CHUNKSIZE))
+                    local pos_in_block = vector.new(x % CHUNKSIZE, 0, z % CHUNKSIZE)
 
                     if (pos_in_block.x < ROAD_1 or
                             pos_in_block.z < ROAD_1 or
