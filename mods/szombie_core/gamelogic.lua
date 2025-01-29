@@ -144,6 +144,9 @@ local function spawn_monsters(player, max_count)
         local control = player:get_player_control()
         local movement_dir = vector.new(control.movement_x, 0, control.movement_y)
 
+        -- add a bias for spawning monsters in front of the player's walking direction.
+        -- to fix the player being able to get themselves safe from monsters
+        -- by simply running in one direction.
         if movement_dir ~= vector.zero() and math.random(1, 2) == 1 then
             movement_dir = movement_dir:rotate(vector.new(0, player:get_look_horizontal(), 0))
 
