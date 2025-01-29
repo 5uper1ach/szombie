@@ -67,8 +67,8 @@ local function is_spawner_free(spawner_pos)
 end
 
 
-local CHECK_COVERED_OFFSETS = {vector.new(0, 0, 0), vector.new(0, 1, 0)}
-local CHECK_FREE_OFFSETS = {vector.new(0, 2, 0), vector.new(0, 3, 0)}
+local CHECK_COVERED_Y_OFFSETS = {0, 1}
+local CHECK_FREE_Y_OFFSETS = {2, 3}
 
 local function is_spawner_possible(spawner_pos)
     print("is_spawner_possible called for " .. vector.to_string(spawner_pos))
@@ -78,8 +78,8 @@ local function is_spawner_possible(spawner_pos)
         return false
     end
 
-    for _, offset in ipairs(CHECK_COVERED_OFFSETS) do
-        local node = core.get_node(spawner_pos + offset)
+    for _, offset in ipairs(CHECK_COVERED_Y_OFFSETS) do
+        local node = core.get_node(spawner_pos:offset(0, offset, 0))
         local def = core.registered_nodes[node.name]
         if not def or def.drawtype ~= "normal" or
                 (def.use_texture_alpha ~= nil and def.use_texture_alpha ~= "opaque") then
@@ -88,8 +88,8 @@ local function is_spawner_possible(spawner_pos)
         end
     end
 
-    for _, offset in ipairs(CHECK_FREE_OFFSETS) do
-        local node = core.get_node(spawner_pos + offset)
+    for _, offset in ipairs(CHECK_FREE_Y_OFFSETS) do
+        local node = core.get_node(spawner_pos:offset(0, offset, 0))
         if node.name ~= "air" then
             print("    come-out-spot not free, discarding.")
             return false
@@ -102,6 +102,8 @@ end
 
 
 local MAX_SPAWN_TRIES = 100
+-- ordered by descending usefulness & likelyhood
+local SPAWN_TRY_Y_OFFSETS = {-2, 0, -1, -3, -4, 1, 2, 3, 4}
 
 local function spawn_monsters(player, max_count)
     local player_pos = player:get_pos()
@@ -111,20 +113,26 @@ local function spawn_monsters(player, max_count)
     while num_spawned < max_count and num_tries < MAX_SPAWN_TRIES do
         local angle = math.random() * 2*math.pi
         local distance = math.random() * 10 + 10
-        local monster_pos = vector.new(
+        local base_spawner_pos = vector.new(
             math.round(player_pos.x + math.sin(angle) * distance),
-            math.round(player_pos.y - 2),
+            math.round(player_pos.y),
             math.round(player_pos.z + math.cos(angle) * distance)
         )
 
-        if is_spawner_possible(monster_pos) then
-            -- y+0.5 to fix sinking into ground
-            local obj = core.add_entity(vector.offset(monster_pos, 0, 0.5, 0), MONSTER_NAME)
-            obj:get_luaentity().szombie_victim = player
-            num_spawned = num_spawned + 1
+        for _, offset in ipairs(SPAWN_TRY_Y_OFFSETS) do
+            local spawner_pos = base_spawner_pos:offset(0, offset, 0)
 
-            core.set_node(monster_pos, {name = "air"})
-            core.set_node(monster_pos:offset(0, 1, 0), {name = "air"})
+            if is_spawner_possible(spawner_pos) then
+                -- y+0.5 to fix sinking into ground
+                local obj = core.add_entity(vector.offset(spawner_pos, 0, 0.5, 0), MONSTER_NAME)
+                obj:get_luaentity().szombie_victim = player
+
+                core.set_node(spawner_pos, {name = "air"})
+                core.set_node(spawner_pos:offset(0, 1, 0), {name = "air"})
+
+                num_spawned = num_spawned + 1
+                break
+            end
         end
 
         num_tries = num_tries + 1
