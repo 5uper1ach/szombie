@@ -139,13 +139,24 @@ local function spawn_monsters(player, max_count)
     local num_tries = 0
 
     while num_spawned < max_count and num_tries < MAX_SPAWN_TRIES do
-        local angle = math.random() * 2*math.pi
+        local spawn_dir
+
+        local control = player:get_player_control()
+        local movement_dir = vector.new(control.movement_x, 0, control.movement_y)
+
+        if movement_dir ~= vector.zero() and math.random(1, 2) == 1 then
+            movement_dir = movement_dir:rotate(vector.new(0, player:get_look_horizontal(), 0))
+    
+            -- random direction on 90° circle sector centered around player's walking direction
+            spawn_dir = movement_dir:rotate(vector.new(0, math.random() * math.pi/2 - math.pi/4, 0))
+        else
+            -- random direction on circle
+            spawn_dir = vector.new(0, 0, 1)
+            spawn_dir = spawn_dir:rotate(vector.new(0, math.random() * 2*math.pi, 0))
+        end
+
         local distance = math.random() * 10 + 10
-        local base_spawner_pos = vector.new(
-            math.round(player_pos.x + math.sin(angle) * distance),
-            math.round(player_pos.y),
-            math.round(player_pos.z + math.cos(angle) * distance)
-        )
+        local base_spawner_pos = player_pos + spawn_dir * distance
 
         for _, offset in ipairs(SPAWN_TRY_Y_OFFSETS) do
             local spawner_pos = base_spawner_pos:offset(0, offset, 0)
