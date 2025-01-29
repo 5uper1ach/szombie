@@ -168,6 +168,8 @@ local function spawn_monsters(player, max_count)
                 -- y+0.5 to fix sinking into ground
                 local obj = core.add_entity(vector.offset(spawner_pos, 0, 0.5, 0), MONSTER_NAME)
                 obj:get_luaentity().szombie_victim = player
+                -- push the monster out of the ground
+                -- TODO: replace by push-out physics like dropped items have
                 obj:add_velocity(vector.new(0, 8, 0))
 
                 -- core.set_node(spawner_pos, {name = "air"})
