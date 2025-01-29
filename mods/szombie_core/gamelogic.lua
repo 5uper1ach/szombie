@@ -165,7 +165,7 @@ local function spawn_monsters(player, max_count)
                 -- y+0.5 to fix sinking into ground
                 local obj = core.add_entity(vector.offset(spawner_pos, 0, 0.5, 0), MONSTER_NAME)
                 obj:get_luaentity().szombie_victim = player
-                obj:add_velocity(vector.new(0, 5, 0))
+                obj:add_velocity(vector.new(0, 8, 0))
 
                 -- core.set_node(spawner_pos, {name = "air"})
                 -- core.set_node(spawner_pos:offset(0, 1, 0), {name = "air"})
@@ -192,7 +192,7 @@ local function manage_active_monsters()
             local victim_pos = ent.szombie_victim and ent.szombie_victim:get_pos()
             if not monster_pos or not victim_pos then
                 ent.object:remove()
-            elseif vector.distance(monster_pos, victim_pos) > 16 then
+            elseif vector.distance(monster_pos, victim_pos) > 20 then
                 print(">>>>>>>>>>> removing monster at " .. vector.to_string(monster_pos) .. ", too far away.")
                 ent.object:remove()
             else
