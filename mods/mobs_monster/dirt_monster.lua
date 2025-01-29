@@ -4,8 +4,9 @@ mobs:register_mob("mobs_monster:dirt_monster", {
 	type = "monster",
 	passive = false,
 	attack_type = "dogfight",
-	-- 2 means GRIEFING TOO
-	pathfinding = 2,
+	-- 2 would mean GRIEFING TOO
+	-- pathfinding = 2,
+	pathfinding = 1,
 	reach = 2,
 	damage = 2,
 	hp_min = 6,

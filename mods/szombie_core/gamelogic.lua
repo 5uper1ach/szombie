@@ -126,9 +126,10 @@ local function spawn_monsters(player, max_count)
                 -- y+0.5 to fix sinking into ground
                 local obj = core.add_entity(vector.offset(spawner_pos, 0, 0.5, 0), MONSTER_NAME)
                 obj:get_luaentity().szombie_victim = player
+                obj:add_velocity(vector.new(0, 5, 0))
 
-                core.set_node(spawner_pos, {name = "air"})
-                core.set_node(spawner_pos:offset(0, 1, 0), {name = "air"})
+                -- core.set_node(spawner_pos, {name = "air"})
+                -- core.set_node(spawner_pos:offset(0, 1, 0), {name = "air"})
 
                 num_spawned = num_spawned + 1
                 break
