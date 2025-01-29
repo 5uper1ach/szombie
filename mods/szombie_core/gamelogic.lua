@@ -66,125 +66,71 @@ local function is_spawner_free(spawner_pos)
     return true
 end
 
-local function get_eye_pos(player)
-    local pos = player:get_pos()
-    pos.y = pos.y + player:get_properties().eye_height
-    -- https://dev.luanti.org/docs/classes/raycast/#redo-tool-raycasts
-    local first_person = player:get_eye_offset()
-    pos = pos + first_person/10
-    return pos
-end
 
-local function is_view_blocked(pos1, pos2)
-    local ray = core.raycast(pos1, pos2, false, false)
-    for pointed in ray do
-        if pointed.type == "node" then
-            local node = core.get_node(pointed.under)
-            local def = core.registered_nodes[node.name]
-            if node.name ~= SPAWNER_NAME and
-                    -- TODO: add use_texture_alpha check?
-                    -- so that semi/clip-transparent nodes like glass don't count as blocking the view
-                    (not def or def.drawtype ~= "airlike") then
-                return true
-            end
-        end
-    end
-    return false
-end
-
-local function is_spawner_hidden(player, spawner_pos)
-    -- print("    checking visibility of " .. vector.to_string(spawner_pos) .. " for " .. player:get_player_name())
-
-    local eye_pos = get_eye_pos(player)
-
-    -- player too close, they'll definitely notice
-    if vector.distance(eye_pos, spawner_pos) < 3 then
-        -- print("        player too close, not okay.")
-        return false
-    end
-
-    -- player looks away, they won't notice even if the view isn't blocked
-    local bad_dir = vector.direction(eye_pos, spawner_pos)
-    local actual_dir = player:get_look_dir()
-    if vector.dot(bad_dir, actual_dir) < 0 then
-        -- print("        player looks away, okay.")
-        return true
-    end
-
-    if is_view_blocked(eye_pos, spawner_pos) then
-        -- print("        view is blocked, okay.")
-        return true
-    end
-
-    -- print("        neither looking away nor view blocked, not okay.")
-    return false
-end
+local CHECK_COVERED_OFFSETS = {vector.new(0, 0, 0), vector.new(0, 1, 0)}
+local CHECK_FREE_OFFSETS = {vector.new(0, 2, 0), vector.new(0, 3, 0)}
 
 local function is_spawner_possible(spawner_pos)
-    -- print("is_spawner_possible called for " .. vector.to_string(spawner_pos))
+    print("is_spawner_possible called for " .. vector.to_string(spawner_pos))
 
     if not is_spawner_free(spawner_pos) then
-        -- print("    not free, discarding.")
+        print("    not free of monsters, discarding.")
         return false
     end
 
-    for _, player in ipairs(core.get_connected_players()) do
-        -- monster is two nodes tall
-        if not is_spawner_hidden(player, spawner_pos) or
-                not is_spawner_hidden(player, vector.offset(spawner_pos, 0, 1, 0)) then
-            -- print("    not hidden for " .. player:get_player_name() .. ", discarding.")
+    for _, offset in ipairs(CHECK_COVERED_OFFSETS) do
+        local node = core.get_node(spawner_pos + offset)
+        local def = core.registered_nodes[node.name]
+        if not def or def.drawtype ~= "normal" or
+                (def.use_texture_alpha ~= nil and def.use_texture_alpha ~= "opaque") then
+            print("    spawn-spot not covered by solid nodes, discarding.")
             return false
         end
     end
 
-    -- print("    possible!")
+    for _, offset in ipairs(CHECK_FREE_OFFSETS) do
+        local node = core.get_node(spawner_pos + offset)
+        if node.name ~= "air" then
+            print("    come-out-spot not free, discarding.")
+            return false
+        end
+    end
+
+    print("    possible!")
     return true
 end
 
 
-
--- intentionally also includes 0, 0, 0
-local offsets = {}
-for x = -1, 1 do
-for y = -1, 1 do
-for z = -1, 1 do
-    table.insert(offsets, vector.new(x, y, z))
-end
-end
-end
+local MAX_SPAWN_TRIES = 100
 
 local function spawn_monsters(player, max_count)
-    local playerpos = player:get_pos()
-    local blockpos = mapblock_lib.get_mapblock(playerpos)
-
-    local avail_spawners = {}
-    for _, offset in ipairs(offsets) do
-        local blockpos2 = blockpos + offset
-        local spawners = szombie_core.spawner_poss[blockpos2:to_string()]
-        if spawners then
-            table.insert_all(avail_spawners, spawners)
-        end
-    end
-    table.sort(avail_spawners, function(a, b)
-        return vector.distance(playerpos, a) < vector.distance(playerpos, b)
-    end)
-
+    local player_pos = player:get_pos()
     local num_spawned = 0
+    local num_tries = 0
 
-    for _, spawner_pos in ipairs(avail_spawners) do
-        if is_spawner_possible(spawner_pos) then
+    while num_spawned < max_count and num_tries < MAX_SPAWN_TRIES do
+        local angle = math.random() * 2*math.pi
+        local distance = math.random() * 10 + 10
+        local monster_pos = vector.new(
+            math.round(player_pos.x + math.sin(angle) * distance),
+            math.round(player_pos.y - 2),
+            math.round(player_pos.z + math.cos(angle) * distance)
+        )
+
+        if is_spawner_possible(monster_pos) then
             -- y+0.5 to fix sinking into ground
-            local obj = core.add_entity(vector.offset(spawner_pos, 0, 0.5, 0), MONSTER_NAME)
+            local obj = core.add_entity(vector.offset(monster_pos, 0, 0.5, 0), MONSTER_NAME)
             obj:get_luaentity().szombie_victim = player
             num_spawned = num_spawned + 1
+
+            core.set_node(monster_pos, {name = "air"})
+            core.set_node(monster_pos:offset(0, 1, 0), {name = "air"})
         end
 
-        if num_spawned >= max_count then
-            break
-        end
+        num_tries = num_tries + 1
     end
-    
-    print("spawned " .. num_spawned .. " monsters, maximum was ".. max_count)
+
+    print("spawned " .. num_spawned .. " monsters, maximum was ".. max_count .. ", " .. num_tries .. " tries")
 end
 
 
