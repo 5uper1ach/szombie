@@ -3,15 +3,43 @@ if not minetest.settings:get_bool("enable_damage") or
     error("enable_damage = true and creative_mode = false are required")
 end
 
-minetest.register_on_newplayer(function(player)
+
+-- disable sfinv so it doesn't interfere with our set_inventory call
+sfinv.enabled = false
+
+core.register_on_joinplayer(function(player, last_login)
+    core.set_timeofday(0.75)
+
     local inv = player:get_inventory()
+
     inv:set_size("main", 2)
-    inv:add_item("main", "shooter:machine_gun")
+    inv:set_size("craft", 0)
+    inv:set_size("craftpreview", 0)
+    inv:set_size("craftresult", 0)
+    player:set_inventory_formspec("")
+
     player:hud_set_hotbar_itemcount(2)
+    player:hud_set_hotbar_image("")
+    player:hud_set_hotbar_selected_image("")
 end)
 
-minetest.register_on_joinplayer(function(plaer, last_login)
-    core.set_timeofday(0.75)
+
+local function player_start(player)
+    local inv = player:get_inventory()
+    inv:set_list("main", {"shooter:machine_gun", ""})
+
+    for _, ent in pairs(core.luaentities) do
+        if ent.name == MONSTER_NAME and ent.szombie_victim == player then
+            ent.object:remove()
+        end
+    end
+end
+
+core.register_on_newplayer(function(player)
+    player_start(player)
+end)
+core.register_on_respawnplayer(function(player)
+    player_start(player)
 end)
 
 
