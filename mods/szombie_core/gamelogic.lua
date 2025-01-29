@@ -266,3 +266,6 @@ core.register_on_mods_loaded(function()
         end
     end
 end)
+
+-- players are not allowed to drop their items
+core.item_drop = function() end
