@@ -146,7 +146,7 @@ local function spawn_monsters(player, max_count)
 
         if movement_dir ~= vector.zero() and math.random(1, 2) == 1 then
             movement_dir = movement_dir:rotate(vector.new(0, player:get_look_horizontal(), 0))
-    
+
             -- random direction on 90° circle sector centered around player's walking direction
             spawn_dir = movement_dir:rotate(vector.new(0, math.random() * math.pi/2 - math.pi/4, 0))
         else

@@ -4,7 +4,7 @@ minetest.register_on_joinplayer(function(plaer, last_login)
         shadows = {
             intensity = 0.33,
             -- tint = "indianred",
-        },   
+        },
         bloom = {
             intensity = 0.05,
             strength_factor = 2,
@@ -54,5 +54,5 @@ minetest.register_globalstep(function(dtime)
             -- make fog blend with floor
             base_color = color,
         })
-    end 
+    end
 end)
